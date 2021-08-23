@@ -104,7 +104,6 @@ namespace FolderSize
             sizeMap.Add(dir.FullName, totalSize);
             timeMap.Add(dir.FullName, dir.LastWriteTime.Ticks);
             return totalSize;
-
         }
 
 
