@@ -62,8 +62,8 @@ namespace FolderSize
         static long GetDirSize(DirectoryInfo dir)
         {
             long totalSize = 0;
-            var sub_dirs = dir.EnumerateDirectories();
-            foreach (var sub_dir in sub_dirs)
+            var sub_directories = dir.EnumerateDirectories();
+            foreach (var sub_dir in sub_directories)
             {
                 try { totalSize += GetDirSize(sub_dir); }
                  catch { }
