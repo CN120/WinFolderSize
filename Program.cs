@@ -48,7 +48,7 @@ namespace FolderSize
                 watch.Stop();
                 var elapsedMs = watch.ElapsedMilliseconds;
                 firstrun = false;
-                Console.WriteLine("\n\nProgram took {0} seconds", elapsedMs / 1000);
+                Console.WriteLine("\n\nProgram took {0} seconds", elapsedMs * 0.001);
 
                 Console.Write("Quit program? (y/n)\n");
                 string answer = Console.ReadLine();
@@ -61,33 +61,39 @@ namespace FolderSize
 
         static long GetDirSize(DirectoryInfo dir)
         {
+            long totalSize = 0;
+            var sub_dirs = dir.EnumerateDirectories();
+            foreach (var sub_dir in sub_dirs)
+            {
+                try { totalSize += GetDirSize(sub_dir); }
+                 catch { }
+            }
+
             if (!firstrun){
                 try
                 {   
-                    //Console.WriteLine("test1");
-                    //if (sizeMap[dir] == (long)-1)
-                    //{
-                    //    return 0;
-                    //}
-                    Console.WriteLine("test2");
-                    Console.WriteLine(dir.LastWriteTime.Ticks.ToString());
-                    Console.WriteLine(timeMap[dir.FullName].ToString());
+                    //Console.WriteLine("check size dictionary");
+                    //Console.WriteLine("{0} == {1}", dir.LastWriteTime.Ticks.ToString(), timeMap[dir.FullName].ToString());
                     if (dir.LastWriteTime.Ticks == timeMap[dir.FullName])
                     {
-                        Console.WriteLine("cache hit");
-                        Console.WriteLine(dir.FullName);
                         return sizeMap[dir.FullName];
+                    }
+                    else
+                    {
+                        Console.WriteLine("folder edit detected");
+                        Console.WriteLine(dir.FullName);
+                        timeMap[dir.FullName] = dir.LastWriteTime.Ticks;
+                        dir.Parent.LastWriteTime = dir.LastWriteTime;
+
                     }
                 }
                 catch (Exception e) { Console.Error.WriteLine(e); }
             }
             
 
-
-            long totalSize = 0;
             try
             {
-                totalSize = dir.EnumerateFiles().Sum(File => File.Length);
+                totalSize += dir.EnumerateFiles().Sum(File => File.Length);
             }
             catch
             {
@@ -96,10 +102,7 @@ namespace FolderSize
                 return 0;
             }
             
-            foreach(var sub_dir in dir.EnumerateDirectories())
-            {
-                totalSize += GetDirSize(sub_dir);
-            }
+           
 
             sizeMap.Add(dir.FullName, totalSize);
             timeMap.Add(dir.FullName, dir.LastWriteTime.Ticks);
