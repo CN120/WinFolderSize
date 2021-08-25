@@ -95,8 +95,8 @@ namespace FolderSize
             }
 
 
-            sizeMap.Add(dir.FullName, totalSize);
-            timeMap.Add(dir.FullName, dir.LastWriteTime.Ticks);
+            sizeMap[dir.FullName] = totalSize;
+            timeMap[dir.FullName] = dir.LastWriteTime.Ticks;
 
 
             //Console.WriteLine("check size dictionary");
