@@ -62,13 +62,20 @@ namespace FolderSize
         static long GetDirSize(DirectoryInfo dir)
         {
             long totalSize = 0;
-            var sub_directories = dir.EnumerateDirectories();
-            foreach (var sub_dir in sub_directories)
+            if (Directory.Exists(dir.FullName))
             {
-                try { totalSize += GetDirSize(sub_dir); }
-                 catch { }
-            }
+                var sub_directories = dir.EnumerateDirectories();
+                foreach (var sub_dir in sub_directories)
+                {
 
+                    try { totalSize += GetDirSize(sub_dir); }
+                    catch { }
+                }
+            }
+            else
+            {
+                return 0;
+            }
 
             if (timeMap.TryGetValue(dir.FullName, out long mod_time))
             {
@@ -78,7 +85,7 @@ namespace FolderSize
                 }
                 else
                 {
-
+                    timeMap[dir.FullName] = dir.LastWriteTime.Ticks;
                 }
             }
             
@@ -104,15 +111,6 @@ namespace FolderSize
             return totalSize;
         }
             
-            
-            
-           
-            
-           
-
-
-            return totalSize;
-        }
 
 
         static string DirSizeToString(long sizeInBytes)
