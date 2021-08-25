@@ -69,28 +69,20 @@ namespace FolderSize
                  catch { }
             }
 
-            if (!firstrun){
-                try
-                {   
-                    //Console.WriteLine("check size dictionary");
-                    //Console.WriteLine("{0} == {1}", dir.LastWriteTime.Ticks.ToString(), timeMap[dir.FullName].ToString());
-                    if (dir.LastWriteTime.Ticks == timeMap[dir.FullName])
-                    {
-                        return sizeMap[dir.FullName];
-                    }
-                    else
-                    {
-                        Console.WriteLine("folder edit detected");
-                        Console.WriteLine(dir.FullName);
-                        timeMap[dir.FullName] = dir.LastWriteTime.Ticks;
-                        dir.Parent.LastWriteTime = dir.LastWriteTime;
 
-                    }
+            if (timeMap.TryGetValue(dir.FullName, out long mod_time))
+            {
+                if (dir.LastWriteTime.Ticks == mod_time)
+                {
+                    return sizeMap[dir.FullName];
                 }
-                catch (Exception e) { Console.Error.WriteLine(e); }
+                else
+                {
+
+                }
             }
             
-
+            //calculate size here
             try
             {
                 totalSize += dir.EnumerateFiles().Sum(File => File.Length);
@@ -101,11 +93,24 @@ namespace FolderSize
                 Console.WriteLine(dir.FullName);
                 return 0;
             }
-            
-           
+
 
             sizeMap.Add(dir.FullName, totalSize);
             timeMap.Add(dir.FullName, dir.LastWriteTime.Ticks);
+
+
+            //Console.WriteLine("check size dictionary");
+            //Console.WriteLine("{0} == {1}", dir.LastWriteTime.Ticks.ToString(), timeMap[dir.FullName].ToString());
+            return totalSize;
+        }
+            
+            
+            
+           
+            
+           
+
+
             return totalSize;
         }
 
