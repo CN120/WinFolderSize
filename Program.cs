@@ -33,20 +33,20 @@ namespace FolderSize
                 }
                 
                 // Print out contents of the dictionary
-                foreach (KeyValuePair<String, long> dir_and_size in sizeMap)
-                {
-                    string dirSizeStr = DirSizeToString(dir_and_size.Value);
-                    if (dirSizeStr.Length < 8)
-                        Console.WriteLine("{0}\t\t{1}", dirSizeStr, dir_and_size.Key);
-                    else
-                        Console.WriteLine("{0}\t{1}", dirSizeStr, dir_and_size.Key);
-                }
+                //foreach (KeyValuePair<String, long> dir_and_size in sizeMap)
+                //{
+                //    string dirSizeStr = DirSizeToString(dir_and_size.Value);
+                //    if (dirSizeStr.Length < 8)
+                //        Console.WriteLine("{0}\t\t{1}", dirSizeStr, dir_and_size.Key);
+                //    else
+                //        Console.WriteLine("{0}\t{1}", dirSizeStr, dir_and_size.Key);
+                //}
 
                 timer.Stop();
-                Console.WriteLine("\n\nProgram completed in {0} seconds", timer.ElapsedMilliseconds * 0.001);
+                Console.WriteLine("\nProgram completed in {0} seconds", timer.ElapsedMilliseconds * 0.001);
 
-                Console.Write("Quit program? (y/n)\n");
-            } while (!Console.ReadLine().Contains("y"));
+                Console.Write("Run again? (y/n):");
+            } while (Console.ReadLine().Contains("y"));
         }
 
         static long GetDirSize(DirectoryInfo dir)
@@ -61,7 +61,7 @@ namespace FolderSize
             {
                 if (dir.LastWriteTime.Ticks == mod_time)
                 {
-                    Console.WriteLine("cache hit");
+                    //Console.WriteLine("cache hit");
                     return sizeMap[dir.FullName];
                 }
                 //else
@@ -76,9 +76,6 @@ namespace FolderSize
             sizeMap[dir.FullName] = totalSize;
             timeMap[dir.FullName] = dir.LastWriteTime.Ticks;
 
-
-            //Console.WriteLine("check size dictionary");
-            //Console.WriteLine("{0} == {1}", dir.LastWriteTime.Ticks.ToString(), timeMap[dir.FullName].ToString());
             return totalSize;
         }
             
