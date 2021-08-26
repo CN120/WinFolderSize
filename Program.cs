@@ -13,49 +13,40 @@ namespace FolderSize
         static readonly EnumerationOptions EnumOps = new();
         static void Main()
         {
-            var quit = false;
-            while (!quit)
+            do
             {
 
                 Console.Write("Enter a folder path: ");
-                string path = Console.ReadLine();
-                
-                //timer
-                var watch = System.Diagnostics.Stopwatch.StartNew();
+                DirectoryInfo directory = new(Console.ReadLine());
 
-                DirectoryInfo d = new DirectoryInfo(path);
-                // Determine whether the directory exists.
-                if (!d.Exists)
+                //timer
+                var timer = System.Diagnostics.Stopwatch.StartNew();
+
+                if (directory.Exists)
                 {
-                    // Indicate that the directory already exists.
+                    GetDirSize(directory);
+                    // this will populate sizeMap and timeMap
+                }
+                else {
                     Console.WriteLine("<ERROR> That path does not exists");
                     return;
                 }
-                GetDirSize(d);
+                
+                // Print out contents of the dictionary
                 foreach (KeyValuePair<String, long> kvp in sizeMap)
                 {
-                    //textBox3.Text += ("Key = {0}, Value = {1}", kvp.Key, kvp.Value);
-                    var DirSize = DirSizeToString(kvp.Value);
+                    string DirSize = DirSizeToString(kvp.Value);
                     if (DirSize.Length < 8)
-                    {
                         Console.WriteLine("{0}\t\t{1}", DirSize, kvp.Key);
-                    }
                     else
-                    {
                         Console.WriteLine("{0}\t{1}", DirSize, kvp.Key);
-                    }
                 }
-                watch.Stop();
-                var elapsedMs = watch.ElapsedMilliseconds;
-                Console.WriteLine("\n\nProgram took {0} seconds", elapsedMs * 0.001);
+
+                timer.Stop();
+                Console.WriteLine("\n\nProgram completed in {0} seconds", timer.ElapsedMilliseconds * 0.001);
 
                 Console.Write("Quit program? (y/n)\n");
-                string answer = Console.ReadLine();
-                if (answer.Contains("y")){
-                    quit = true;
-                    Console.WriteLine("Quiting...");
-                }
-            }
+            } while (!Console.ReadLine().Contains("y"));
         }
 
         static long GetDirSize(DirectoryInfo dir)
@@ -64,12 +55,13 @@ namespace FolderSize
             
             //var sub_directories = dir.EnumerateDirectories("*", EnumOps);
             totalSize += dir.EnumerateDirectories("*", EnumOps).Sum(Folder => GetDirSize(Folder));
-            
+
 
             if (timeMap.TryGetValue(dir.FullName, out long mod_time))
             {
                 if (dir.LastWriteTime.Ticks == mod_time)
                 {
+                    Console.WriteLine("cache hit");
                     return sizeMap[dir.FullName];
                 }
                 //else
