@@ -53,7 +53,7 @@ namespace FolderSize
         {
             long totalSize = 0;
             
-            //var sub_directories = dir.EnumerateDirectories("*", EnumOps);
+            // this serves as the base case because when EnumDirs() returns 0 directories, GetDirSize() is not run and Sum() returns 0
             totalSize += dir.EnumerateDirectories("*", EnumOps).Sum(Folder => GetDirSize(Folder));
 
 
