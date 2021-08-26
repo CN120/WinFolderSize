@@ -24,8 +24,8 @@ namespace FolderSize
 
                 if (directory.Exists)
                 {
+                    // populate sizeMap and timeMap
                     GetDirSize(directory);
-                    // this will populate sizeMap and timeMap
                 }
                 else {
                     Console.WriteLine("<ERROR> That path does not exists");
@@ -33,13 +33,13 @@ namespace FolderSize
                 }
                 
                 // Print out contents of the dictionary
-                foreach (KeyValuePair<String, long> kvp in sizeMap)
+                foreach (KeyValuePair<String, long> dir_and_size in sizeMap)
                 {
-                    string DirSize = DirSizeToString(kvp.Value);
-                    if (DirSize.Length < 8)
-                        Console.WriteLine("{0}\t\t{1}", DirSize, kvp.Key);
+                    string dirSizeStr = DirSizeToString(dir_and_size.Value);
+                    if (dirSizeStr.Length < 8)
+                        Console.WriteLine("{0}\t\t{1}", dirSizeStr, dir_and_size.Key);
                     else
-                        Console.WriteLine("{0}\t{1}", DirSize, kvp.Key);
+                        Console.WriteLine("{0}\t{1}", dirSizeStr, dir_and_size.Key);
                 }
 
                 timer.Stop();
