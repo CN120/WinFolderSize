@@ -8,10 +8,9 @@ namespace FolderSize
 {
     class Program
     {
-        static IDictionary<String, long> sizeMap = new Dictionary<String, long>();
-        static IDictionary<String, long> timeMap = new Dictionary<String, long>();
-        static EnumerationOptions EnumOps = new();
-        static bool firstrun = true;
+        static readonly IDictionary<String, long> sizeMap = new Dictionary<String, long>();
+        static readonly IDictionary<String, long> timeMap = new Dictionary<String, long>();
+        static readonly EnumerationOptions EnumOps = new();
         static void Main()
         {
             var quit = false;
@@ -37,18 +36,17 @@ namespace FolderSize
                 {
                     //textBox3.Text += ("Key = {0}, Value = {1}", kvp.Key, kvp.Value);
                     var DirSize = DirSizeToString(kvp.Value);
-                    //if (DirSize.Length < 8)
-                    //{
-                    //    Console.WriteLine("{0}\t\t{1}", DirSize, kvp.Key);
-                    //}
-                    //else
-                    //{
-                    //    Console.WriteLine("{0}\t{1}", DirSize, kvp.Key);
-                    //}
+                    if (DirSize.Length < 8)
+                    {
+                        Console.WriteLine("{0}\t\t{1}", DirSize, kvp.Key);
+                    }
+                    else
+                    {
+                        Console.WriteLine("{0}\t{1}", DirSize, kvp.Key);
+                    }
                 }
                 watch.Stop();
                 var elapsedMs = watch.ElapsedMilliseconds;
-                firstrun = false;
                 Console.WriteLine("\n\nProgram took {0} seconds", elapsedMs * 0.001);
 
                 Console.Write("Quit program? (y/n)\n");
@@ -63,19 +61,10 @@ namespace FolderSize
         static long GetDirSize(DirectoryInfo dir)
         {
             long totalSize = 0;
-            if (Directory.Exists(dir.FullName))
-            {
-                var sub_directories = dir.EnumerateDirectories("*", EnumOps);
-                foreach (var sub_dir in sub_directories)
-                {
-
-                    totalSize += GetDirSize(sub_dir);
-                }
-            }
-            else
-            {
-                return 0;
-            }
+            
+            //var sub_directories = dir.EnumerateDirectories("*", EnumOps);
+            totalSize += dir.EnumerateDirectories("*", EnumOps).Sum(Folder => GetDirSize(Folder));
+            
 
             if (timeMap.TryGetValue(dir.FullName, out long mod_time))
             {
@@ -89,26 +78,8 @@ namespace FolderSize
                 //}
             }
             
-            //calculate size here
 
-            try
-            {
-                var Files = dir.EnumerateFiles();
-                foreach(var file in Files)
-                {
-                    totalSize += file.Length;
-                    Console.WriteLine("Able to access file {0}", file.FullName);
-                }
-
-                //totalSize += dir.EnumerateFiles().Sum(File => File.Length);
-            }
-            catch
-            {
-                //sizeMap.Add(dir, (long)-1);
-                Console.WriteLine("No access to some file in", dir.FullName);
-                return 0;
-            }
-
+            totalSize += dir.EnumerateFiles("*", EnumOps).Sum(File => File.Length);
 
             sizeMap[dir.FullName] = totalSize;
             timeMap[dir.FullName] = dir.LastWriteTime.Ticks;
