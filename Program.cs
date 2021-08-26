@@ -10,8 +10,9 @@ namespace FolderSize
     {
         static IDictionary<String, long> sizeMap = new Dictionary<String, long>();
         static IDictionary<String, long> timeMap = new Dictionary<String, long>();
+        static EnumerationOptions EnumOps = new();
         static bool firstrun = true;
-        static void Main(string[] args)
+        static void Main()
         {
             var quit = false;
             while (!quit)
@@ -64,12 +65,11 @@ namespace FolderSize
             long totalSize = 0;
             if (Directory.Exists(dir.FullName))
             {
-                var sub_directories = dir.EnumerateDirectories();
+                var sub_directories = dir.EnumerateDirectories("*", EnumOps);
                 foreach (var sub_dir in sub_directories)
                 {
 
-                    try { totalSize += GetDirSize(sub_dir); }
-                    catch { }
+                    totalSize += GetDirSize(sub_dir);
                 }
             }
             else
@@ -83,21 +83,29 @@ namespace FolderSize
                 {
                     return sizeMap[dir.FullName];
                 }
-                else
-                {
-                    timeMap[dir.FullName] = dir.LastWriteTime.Ticks;
-                }
+                //else
+                //{
+                //    timeMap[dir.FullName] = dir.LastWriteTime.Ticks;
+                //}
             }
             
             //calculate size here
+
             try
             {
-                totalSize += dir.EnumerateFiles().Sum(File => File.Length);
+                var Files = dir.EnumerateFiles();
+                foreach(var file in Files)
+                {
+                    totalSize += file.Length;
+                    Console.WriteLine("Able to access file {0}", file.FullName);
+                }
+
+                //totalSize += dir.EnumerateFiles().Sum(File => File.Length);
             }
             catch
             {
                 //sizeMap.Add(dir, (long)-1);
-                Console.WriteLine(dir.FullName);
+                Console.WriteLine("No access to some file in", dir.FullName);
                 return 0;
             }
 
