@@ -11,6 +11,7 @@ namespace FolderSize
         static readonly IDictionary<String, long> sizeMap = new Dictionary<String, long>();
         static readonly IDictionary<String, long> timeMap = new Dictionary<String, long>();
         static readonly EnumerationOptions EnumOps = new();
+        static long DirectorySize = 0;
         static void Main()
         {
             do
@@ -24,8 +25,9 @@ namespace FolderSize
 
                 if (directory.Exists)
                 {
+                    DirectorySize = 0;
                     // populate sizeMap and timeMap
-                    GetDirSize(directory);
+                    Console.WriteLine("{0} is {1}", directory, DirSizeToString(GetDirSize(directory)));
                 }
                 else {
                     Console.WriteLine("<ERROR> That path does not exists");
@@ -49,7 +51,7 @@ namespace FolderSize
             } while (Console.ReadLine().Contains("y"));
         }
 
-        static long GetDirSize(DirectoryInfo dir)
+        static long GetDirSize(in DirectoryInfo dir)
         {
             long totalSize = 0;
             
@@ -57,11 +59,15 @@ namespace FolderSize
             totalSize += dir.EnumerateDirectories("*", EnumOps).Sum(Folder => GetDirSize(Folder));
 
 
-            if (timeMap.TryGetValue(dir.FullName, out long mod_time))
+            if (timeMap.TryGetValue(dir.FullName, out long storedLastWriteTime))
             {
-                if (dir.LastWriteTime.Ticks == mod_time)
+                if (dir.LastWriteTime.Ticks == storedLastWriteTime)
                 {
                     return sizeMap[dir.FullName];
+                }
+                else
+                {
+                    timeMap[dir.Parent.FullName] = 0;
                 }
             }
 
@@ -72,8 +78,14 @@ namespace FolderSize
 
             return totalSize;
         }
-            
 
+        static void GetDirSizeNoCache(in DirectoryInfo dir)
+        {
+            // this serves as the base case because when EnumDirs() returns 0 directories, GetDirSize() is not run and Sum() returns 0
+            DirectorySize += dir.EnumerateDirectories("*", EnumOps).Sum(Folder => GetDirSize(Folder));
+
+            DirectorySize += dir.EnumerateFiles("*", EnumOps).Sum(File => File.Length);
+        }
 
         static string DirSizeToString(long sizeInBytes)
         {
