@@ -61,15 +61,9 @@ namespace FolderSize
             {
                 if (dir.LastWriteTime.Ticks == mod_time)
                 {
-                    //Console.WriteLine("cache hit");
                     return sizeMap[dir.FullName];
                 }
-                //else
-                //{
-                //    timeMap[dir.FullName] = dir.LastWriteTime.Ticks;
-                //}
             }
-            
 
             totalSize += dir.EnumerateFiles("*", EnumOps).Sum(File => File.Length);
 
