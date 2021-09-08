@@ -28,8 +28,8 @@ namespace FolderSize
                     // populate sizeMap and timeMap
                     // GetDirSize(directory);
                     fileCount = 0;
-                    Console.WriteLine("{0} \n\tSize:\t{1}", directory, DirSizeToString(GetDirSize(directory)));
-                    Console.WriteLine("\tContains:\t{0} files", fileCount);
+                    Console.WriteLine("{0} \nSize:\t\t{1}", directory, DirSizeToString(GetDirSize(directory)));
+                    Console.WriteLine("Contains:\t{0} files", fileCount);
                 }
                 else {
                     Console.WriteLine("<ERROR> That path does not exists");
@@ -69,7 +69,9 @@ namespace FolderSize
                 }
                 else
                 {
-                    timeMap[dir.Parent.FullName] = 0;
+                    // this is inside a try simply for the one case in which dir is a top level directory and therefore does not have a parent
+                    try{ timeMap[dir.Parent.FullName] = 0; }
+                    catch (NullReferenceException nre) { /* Object reference not set to an instance of an object. */ }
                 }
             }
 
