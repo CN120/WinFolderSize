@@ -10,13 +10,13 @@ namespace FolderSize
     {
         static readonly IDictionary<String, long> sizeMap = new Dictionary<String, long>();
         static readonly IDictionary<String, long> timeMap = new Dictionary<String, long>();
+        static int fileCount = new();
         static readonly EnumerationOptions EnumOps = new();
-        static long DirectorySize = 0;
         static void Main()
         {
             do
             {
-
+                Console.WriteLine();
                 Console.Write("Enter a folder path: ");
                 DirectoryInfo directory = new(Console.ReadLine());
 
@@ -25,9 +25,11 @@ namespace FolderSize
 
                 if (directory.Exists)
                 {
-                    DirectorySize = 0;
                     // populate sizeMap and timeMap
-                    Console.WriteLine("{0} is {1}", directory, DirSizeToString(GetDirSize(directory)));
+                    // GetDirSize(directory);
+                    fileCount = 0;
+                    Console.WriteLine("{0} \n\tSize:\t{1}", directory, DirSizeToString(GetDirSize(directory)));
+                    Console.WriteLine("\tContains:\t{0} files", fileCount);
                 }
                 else {
                     Console.WriteLine("<ERROR> That path does not exists");
@@ -45,7 +47,7 @@ namespace FolderSize
                 //}
 
                 timer.Stop();
-                Console.WriteLine("\nProgram completed in {0} seconds", timer.ElapsedMilliseconds * 0.001);
+                Console.WriteLine("Time Elapsed:\t{0} seconds\n", timer.ElapsedMilliseconds * 0.001);
 
                 Console.Write("Run again? (y/n):");
             } while (Console.ReadLine().Contains("y"));
@@ -57,7 +59,7 @@ namespace FolderSize
             
             // this serves as the base case because when EnumDirs() returns 0 directories, GetDirSize() is not run and Sum() returns 0
             totalSize += dir.EnumerateDirectories("*", EnumOps).Sum(Folder => GetDirSize(Folder));
-
+            
 
             if (timeMap.TryGetValue(dir.FullName, out long storedLastWriteTime))
             {
@@ -72,6 +74,7 @@ namespace FolderSize
             }
 
             totalSize += dir.EnumerateFiles("*", EnumOps).Sum(File => File.Length);
+            fileCount += dir.EnumerateFiles("*", EnumOps).Count();
 
             sizeMap[dir.FullName] = totalSize;
             timeMap[dir.FullName] = dir.LastWriteTime.Ticks;
