@@ -82,12 +82,16 @@ namespace FolderSize
             return totalSize;
         }
 
-        static void GetDirSizeNoCache(in DirectoryInfo dir)
+        static long GetDirSizeNoCache(in DirectoryInfo dir)
         {
-            // this serves as the base case because when EnumDirs() returns 0 directories, GetDirSize() is not run and Sum() returns 0
-            DirectorySize += dir.EnumerateDirectories("*", EnumOps).Sum(Folder => GetDirSize(Folder));
+            long totalSize = 0;
 
-            DirectorySize += dir.EnumerateFiles("*", EnumOps).Sum(File => File.Length);
+            // this serves as the base case because when EnumDirs() returns 0 directories, GetDirSize() is not run and Sum() returns 0
+            totalSize += dir.EnumerateDirectories("*", EnumOps).Sum(Folder => GetDirSizeNoCache(Folder));
+
+            totalSize += dir.EnumerateFiles("*", EnumOps).Sum(File => File.Length);
+
+            return totalSize;
         }
 
         static string DirSizeToString(long sizeInBytes)
